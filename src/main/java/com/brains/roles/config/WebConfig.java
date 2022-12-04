@@ -2,6 +2,7 @@ package com.brains.roles.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,16 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
                 .withUser("user3").password(getEncoder().encode("pass3")).roles("ADMIN")
                 .and()
                 .passwordEncoder(getEncoder());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                .mvcMatchers("/admin").hasRole("ADMIN")
+                .mvcMatchers("/user").hasAnyRole("ADMIN", "USER")
+                .mvcMatchers("/").permitAll()
+                .mvcMatchers("/**").authenticated()
+                .and().httpBasic();
     }
 
     @Bean
